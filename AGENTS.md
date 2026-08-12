@@ -70,9 +70,21 @@ go install github.com/RyanJThompson/simbroker/cmd/simbroker@latest
 claude mcp add simbroker --scope user -- simbroker mcp
 ```
 
-The MCP registration invokes the bare command `simbroker`, so a launch context
-without its directory on `PATH` silently loses the server. Check
-`"$(go env GOPATH)/bin"` is on `PATH`.
+**If `go install` fails with a 404 from `sum.golang.org`, stop and read this
+rather than retrying.** That is the Go checksum database refusing a module it
+cannot see, which happens *before* git runs — so having repository access does
+not rescue it, and neither does re-running the command:
+
+- With access: `export GOPRIVATE=github.com/RyanJThompson/*` and make sure git
+  can authenticate to github.com, then install again.
+- Without: ask whoever owns the repository for a binary and put it anywhere on
+  `PATH`. simbroker is a single static Go binary with no runtime dependencies,
+  so a copied file is a complete install.
+
+Either way, confirm the directory you put it in **is on `PATH`** — the MCP
+registration invokes the bare command `simbroker`, so a launch context that
+cannot find it silently loses the server rather than erroring. For a `go install`
+that is `"$(go env GOPATH)/bin"`.
 
 ## 4. Create the pool
 
@@ -123,6 +135,8 @@ Claim a device with the `claim_simulator` MCP tool, seat it, take a screenshot:
 
 ```bash
 scripts/mobile/sim-node.sh <udid>
+# install the project's build onto that udid first — sim-capture.sh launches
+# what is already there, it never installs
 SIM_UDID=<udid> scripts/mobile/sim-capture.sh smoke
 ```
 

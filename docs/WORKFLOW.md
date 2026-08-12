@@ -114,6 +114,13 @@ MCP claims release themselves when the session ends, so teardown is about giving
 a device back *early* — which matters, because a held device is a station that
 cannot start.
 
+**What comes back is the slot, not the device.** A simulator someone booted stays
+`Booted` until `xcrun simctl shutdown`, and nothing in the broker does that for
+you — which is why `/sim-teardown` lists the device separately from the claim. A
+session that simply ends leaves a booted simulator behind. That is usually fine
+(the next claimant is handed the same warm device), and it is worth reclaiming
+when the RAM is wanted for something other than the next station.
+
 ---
 
 ## 2. Many sessions: the orchestrator
@@ -135,6 +142,13 @@ simbroker doctor    # resolved capacity, pool size, what is claimable
 Open five stations against a capacity of three and two of them sit blocked on
 `claim_simulator`, having already burned a worktree and a session. Queue the
 surplus with `--after` instead.
+
+But `--after` sequences the *work*, not the *devices*. "Idle" is a turn boundary
+(§2, *Collect*) while an MCP claim lives until the session **ends** (§1) — so an
+armed station wakes into exactly the pool that was there before, and a queued
+station behind three live ones still blocks. Collecting from an upstream and
+closing it, or having it call `release_simulator`, is what actually frees the
+slot the queued station is waiting for.
 
 Then check the split is real. For every "and then" in the plan: **does the next
 step read the previous step's output?** If not, there is no dependency and both

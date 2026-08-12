@@ -55,6 +55,10 @@ Use `scripts/mobile/sim-capture.sh` for **checking your own work**: it launches
 the app in a known state with launch flags, pins the status bar to 9:41 so two
 shots differ only where the app differs, and writes a PNG to read back.
 
+**It does not install.** It relaunches whatever build is already on the device,
+so install your new build before capturing — or the PNG shows the previous
+binary, which looks exactly like a fix that did not work.
+
 Never run a bare `npx serve-sim --kill` — it kills every other session's mirror.
 Always scope it: `--kill <udid>`.
 
@@ -75,5 +79,5 @@ Run it before debugging anything. The failure modes here are silent — a stale
 MCP server handing out an old pool, a pool name that fell out of the config, a
 stream that died leaving a node that still looks healthy.
 
-**[Project-specific: add your build/run/test commands here, and say that each
-must take `SIM_UDID`.]**
+**[Project-specific: add your build/run/test commands here. Say that each must
+take `SIM_UDID`, and say which of them installs onto the device.]**

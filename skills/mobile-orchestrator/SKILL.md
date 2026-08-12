@@ -35,6 +35,12 @@ stations against a capacity of three and two of them will sit blocked on
 splits into more streams than there is capacity for, queue the surplus behind
 the first stations with `--after` rather than opening them all at once.**
 
+`--after` sequences the *work*, though — it does not hand the device back. Idle
+is the end of a turn; an MCP claim lives until the *session* ends. So a station
+armed behind three live ones still wakes into a full pool. What frees the slot is
+collecting from the upstream and closing it, or having it call
+`release_simulator` when its device is genuinely finished with.
+
 Then check the split is real. For every "and then" in your plan, ask: **does the
 next step read the previous step's output?** If not, the dependency is imagined
 and both are stations. If it does, the dependency is real — open the downstream
@@ -138,10 +144,13 @@ dismissed, and why.
 - **The user merges**, from the group's chip on the canvas. Never merge for them.
 - Release a finished station: `close-worktree --group <id>` (default `unbind`
   keeps the directory; `--mode remove` asks the user before deleting it).
-- Devices come back on their own: an MCP claim is released when the session that
-  made it ends. Nothing to do unless a station finished early and its device is
-  wanted now — then have it call `release_simulator`, or run
-  `simbroker release <claim_id>`.
+- **The claim comes back on its own; the simulator does not.** An MCP claim is
+  released when the session that made it ends, but the device stays `Booted`
+  until something runs `xcrun simctl shutdown`. So a station whose session simply
+  ends leaves a booted simulator behind — harmless, and the next claimant is
+  handed that warm device, but `/sim-teardown` is what reclaims the RAM for
+  anything other than the next station. To hand a device back *early*, have the
+  station call `release_simulator`, or run `simbroker release <claim_id>`.
 - Simulator views do **not** go on their own. `scripts/mobile/sim-node.sh
   --close <udid>` removes one silently; `/sim-teardown` does the whole lot for
   one station.

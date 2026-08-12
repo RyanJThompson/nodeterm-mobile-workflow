@@ -11,6 +11,11 @@
 # PNG to read back with the Read tool, where tapping through the UI is slow and
 # may not land where you think.
 #
+# IT DOES NOT INSTALL. It terminates and relaunches whatever build is already on
+# the device, so after a code change you must install the new build first — or
+# the PNG shows the previous binary, which looks exactly like a fix that did not
+# work. The pinned status bar means even a before/after diff shows nothing.
+#
 # Environment knobs, for review axes launch arguments cannot reach:
 #
 #   CONTENT_SIZE=accessibility-extra-large   Dynamic Type. `xcrun simctl help ui`

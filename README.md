@@ -68,6 +68,9 @@ Do all of this, then tell me what you changed and what still needs my input:
    machine:
        go install github.com/RyanJThompson/simbroker/cmd/simbroker@latest
        claude mcp add simbroker --scope user -- simbroker mcp
+   If that install 404s at sum.golang.org, the module is not publicly readable
+   from here: do not retry it, read AGENTS.md section 3 and tell me which of the
+   two routes there applies.
 
 5. Run scripts/mobile/sim-bootstrap.sh to create the pool devices, and merge the
    ~/.simbroker/config.json block it prints. Set capacity.ios to what this Mac

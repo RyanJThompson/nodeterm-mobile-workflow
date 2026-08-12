@@ -166,6 +166,12 @@ cat <<EOF
         go install github.com/RyanJThompson/simbroker/cmd/simbroker@latest
     and put "\$(go env GOPATH)/bin" on PATH.
 
+    A 404 from sum.golang.org means the module is not publicly readable from
+    here, and retrying will not help — the checksum database refuses it before
+    git runs. With repo access: GOPRIVATE=github.com/RyanJThompson/* plus git
+    credentials for github.com. Without: get the binary from the repo owner and
+    drop it anywhere on PATH (it is one static file). See AGENTS.md section 3.
+
  3. REGISTER the MCP server, once per machine:
         claude mcp add simbroker --scope user -- simbroker mcp
 

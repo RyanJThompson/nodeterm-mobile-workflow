@@ -66,7 +66,10 @@ if command -v simbroker >/dev/null 2>&1; then
     warn "no $BROKER_CONF — with no models list, EVERY simulator on this machine is in the pool"
   fi
 else
-  bad "simbroker not on PATH — see https://github.com/RyanJThompson/simbroker"
+  bad "simbroker not on PATH: go install github.com/RyanJThompson/simbroker/cmd/simbroker@latest"
+  echo "        if that 404s at sum.golang.org, the module is not readable from here and"
+  echo "        retrying will not help. With repo access: GOPRIVATE=github.com/RyanJThompson/*"
+  echo "        Without: get the binary from its owner, put it anywhere on PATH."
 fi
 
 # Is the MCP server actually registered? A claim made from the CLI inside an
