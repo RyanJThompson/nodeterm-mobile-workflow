@@ -1,0 +1,63 @@
+{
+  "//": "Merge into <project>/.claude/settings.json. install.sh does this for you.",
+  "//permissions": [
+    "Without these, every simulator command stops on a prompt and a reader assumes",
+    "something is misconfigured. The shape is deliberate:",
+    "  - this workflow's own scripts, by path prefix;",
+    "  - serve-sim's READ-ONLY verbs only. --list is allowed; --kill is NOT, because",
+    "    a bare `serve-sim --kill` takes down every other session's mirror and an",
+    "    allowlist entry cannot tell a scoped kill from an unscoped one;",
+    "  - the six simbroker verbs;",
+    "  - read-only simctl verbs, plus boot/launch/install/terminate which the",
+    "    workflow needs. `erase` is deliberately absent: it destroys another",
+    "    agent's device state.",
+    "Entries are matched against the command as typed, so they only fire when the",
+    "command uses that exact relative path from the project root."
+  ],
+  "permissions": {
+    "allow": [
+      "Bash(scripts/mobile/sim-node.sh:*)",
+      "Bash(scripts/mobile/sim-doctor.sh:*)",
+      "Bash(scripts/mobile/sim-capture.sh:*)",
+      "Bash(scripts/mobile/sim-bootstrap.sh:*)",
+      "Bash(/usr/bin/python3 .claude/skills/nodeterm-canvas/inventory.py)",
+      "Bash(simbroker claim:*)",
+      "Bash(simbroker release:*)",
+      "Bash(simbroker renew:*)",
+      "Bash(simbroker list:*)",
+      "Bash(simbroker devices:*)",
+      "Bash(simbroker doctor:*)",
+      "Bash(npx --yes serve-sim@latest --list:*)",
+      "Bash(xcrun simctl list:*)",
+      "Bash(xcrun simctl boot:*)",
+      "Bash(xcrun simctl launch:*)",
+      "Bash(xcrun simctl install:*)",
+      "Bash(xcrun simctl terminate:*)",
+      "Bash(xcrun simctl io:*)",
+      "Bash(xcrun simctl status_bar:*)",
+      "Bash(xcrun simctl ui:*)"
+    ]
+  },
+  "//hooks": [
+    "OPTIONAL. Seats the simulator on the canvas the first time a session touches",
+    "one, without being asked. The matcher must be the literal string \"Bash\" —",
+    "not a regex, not \"*\" — because that is what gives the hook the Bash",
+    "tool_input shape it parses. $CLAUDE_PROJECT_DIR is a hook-time substitution,",
+    "not a shell variable (it is unset inside a Bash tool call), which is what",
+    "lets the wiring survive the project folder moving.",
+    "Delete this block if you would rather seat devices explicitly."
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/scripts/mobile/hooks/seat-simulator.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

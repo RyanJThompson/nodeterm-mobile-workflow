@@ -1,0 +1,88 @@
+# .mobile-workflow.conf — copy to your project root and edit.
+#
+# This file is the ONLY place a project states policy. Everything else in
+# scripts/ is machinery and should not need editing. It is sourced by bash, so
+# it is shell, but keep it to assignments.
+#
+# Every value here can also be overridden for a single run from the environment:
+#
+#   SIM_NODE_H=820 scripts/mobile/sim-node.sh <udid>
+
+# ── The app ───────────────────────────────────────────────────────────────────
+
+# Used by sim-capture.sh to terminate + relaunch the app in a known state.
+BUNDLE_ID="com.example.myapp"
+
+# Optional. Only needed if you wire your own build script through this file.
+# SCHEME="MyApp"
+
+# ── The device pool ───────────────────────────────────────────────────────────
+#
+# READ THIS EVEN IF YOU SKIP THE REST.
+#
+# simbroker matches pool membership on the device NAME, exactly, case-sensitive.
+# There is no OS filter and no udid list. Two consequences:
+#
+#   1. A stock name like "iPhone 17 Pro" can exist on two runtimes at once, so a
+#      pool listing stock names WILL eventually hand an agent a device on a beta
+#      runtime you never meant to support.
+#   2. Omitting "models" from ~/.simbroker/config.json puts EVERY simulator on
+#      the machine into the pool.
+#
+# So: create purpose-named devices, and pin the runtime here as a second gate.
+# sim-bootstrap.sh creates them from SIM_POOL below and prints the matching
+# simbroker config block.
+
+# Substring matched against the runtime identifier, e.g. iOS-26 matches
+# com.apple.CoreSimulator.SimRuntime.iOS-26-0. Leave empty for "any runtime" —
+# but understand that you are then relying on the pool names alone.
+SIM_RUNTIME_MATCH="iOS-26"
+
+# The device used when no udid is passed. Right for one session working alone;
+# wrong the moment two sessions run at once, which is exactly what the broker
+# exists to prevent. Parallel agents each claim and pass their own udid.
+SIM_NAME="MyApp-iPhone17Pro"
+
+# name:deviceType pairs. `xcrun simctl list devicetypes` for the identifiers.
+# The names here must match "models".ios in ~/.simbroker/config.json — keep the
+# two lists in step, and let sim-bootstrap.sh print the second from the first.
+#
+# Size the pool to the machine, not to ambition: three booted simulators is
+# about all a Mac takes before it thrashes, and that number is also simbroker's
+# iOS capacity and therefore the real ceiling on how many agents you can fan out.
+SIM_POOL=(
+  "MyApp-iPhone17Pro:com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro"
+  "MyApp-iPhone17ProMax:com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro-Max"
+  "MyApp-iPhone16e:com.apple.CoreSimulator.SimDeviceType.iPhone-16e"
+)
+
+# ── The canvas node ───────────────────────────────────────────────────────────
+#
+# The shape a simulator view opens at, in points. Applies to simulator views and
+# nothing else.
+#
+# HEIGHT ALONE DECIDES HOW LARGE THE DEVICE RENDERS. The picture is fitted
+# inside the node, so at 686 tall — less about 68 for nodeterm's title bar and
+# serve-sim's button row — it gets 618 of height, and 618 at an iPhone's ~0.46
+# aspect is 284 across. That is the narrowest the node can be without cropping.
+# Width above that costs black bars and nothing else; it is set a little wider
+# on purpose so the button row is not cramped. Raising the width will never
+# enlarge the simulator.
+SIM_NODE_W=352
+SIM_NODE_H=686
+
+# How far below the opening terminal the view is seated, in canvas points.
+SIM_NODE_GAP=100
+
+# ── Screenshots ───────────────────────────────────────────────────────────────
+
+# Where sim-capture.sh writes PNGs. Keep it inside the project and gitignored.
+SHOT_DIR="$PROJECT_ROOT/.build/shots"
+
+# ── Toolchain ─────────────────────────────────────────────────────────────────
+#
+# Normally leave this alone: mobile-env.sh asks `xcode-select -p`. Set it only
+# if this project must build against a different Xcode than the machine default
+# (e.g. a beta installed alongside a release).
+#
+# DEVELOPER_DIR="/Applications/Xcode-beta.app/Contents/Developer"

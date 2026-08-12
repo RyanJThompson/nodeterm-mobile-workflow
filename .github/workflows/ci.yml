@@ -1,0 +1,49 @@
+name: ci
+
+# This repo is shell, Python and Markdown, and it targets macOS + Xcode + a
+# running nodeterm — none of which a hosted runner has. So CI checks the two
+# things that CAN be checked without a Mac and a canvas: that nothing has a
+# syntax error, and that every relative link in the docs points at a file that
+# exists. The real test is `scripts/mobile/sim-doctor.sh` on a real machine.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: bash syntax
+        run: |
+          fail=0
+          for f in install.sh scripts/*.sh scripts/lib/*.sh scripts/hooks/*.sh; do
+            bash -n "$f" || { echo "syntax error: $f"; fail=1; }
+          done
+          exit $fail
+
+      - name: shellcheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          # SC1091: sourced files are resolved at install time, not here.
+          # SC2088: every ~ in this repo is inside a message printed for a
+          #         human to read, not a path the shell is asked to expand.
+          shellcheck -e SC1091 -e SC2088 install.sh scripts/*.sh scripts/lib/*.sh scripts/hooks/*.sh
+
+      - name: python syntax
+        run: python3 -m py_compile skills/nodeterm-canvas/inventory.py
+
+      - name: json is valid
+        run: python3 -c "import json;json.load(open('settings/claude-settings.snippet.json'))"
+
+      - name: embedded python heredocs parse
+        run: python3 .github/check-embedded-python.py
+
+      - name: relative doc links resolve
+        run: python3 .github/check-links.py
