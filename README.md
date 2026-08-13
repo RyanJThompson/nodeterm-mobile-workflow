@@ -92,7 +92,7 @@ prints. [AGENTS.md](AGENTS.md) is the same runbook written for an agent.
 | | |
 |---|---|
 | macOS with Xcode | or the Command Line Tools plus one iOS runtime |
-| [nodeterm](https://nodeterm.app) | the canvas; this reads and writes its project file |
+| [nodeterm](https://nodeterm.dev) | the canvas; this reads and writes its project file |
 | [simbroker](https://github.com/RyanJThompson/simbroker) | device allocation, registered as an MCP server |
 | Node | for `npx`; `serve-sim` 0.1.45+ is fetched on demand |
 | Claude Code | or any agent that reads `CLAUDE.md` and MCP tools |
